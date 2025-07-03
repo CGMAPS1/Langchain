@@ -1,0 +1,51 @@
+ lsten the memory concept  of langchan should be used wth the langgraph concept to astill mantan the memory 
+ use AIMessage,HumanMessagr 
+
+
+ For your simple chatbot use case, LangChain is actually better. Here's why:
+When to use LangChain (your current choice):
+
+Simple conversational chatbots
+Sequential, linear workflows
+ with langgraph 
+ -------------------------------------------------------------------------------------------------------
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langgraph.graph import StateGraph, START, MessagesState
+from langgraph.checkpoint.memory import MemorySaver
+
+# Step 1: Initialize model
+model = ChatOpenAI(model="gpt-4", temperature=0.7)
+
+# Step 2: Define graph
+graph = StateGraph(state_schema=MessagesState)
+
+# Step 3: Define node logic
+def chat_node(state: MessagesState):
+    system_prompt = SystemMessage(content="You are a helpful assistant.")
+    history = state["messages"]
+    prompt = [system_prompt] + history
+    response = model.invoke(prompt)
+    return {"messages": history + [response]}  # Append AIMessage to history
+
+# Step 4: Add node and edge
+graph.add_node("chat", chat_node)
+graph.add_edge(START, "chat")
+
+# Step 5: Compile with memory
+memory = MemorySaver()
+app = graph.compile(checkpointer=memory)
+
+thread_id = "session-1"
+
+while True:
+    user_input = input("You: ")
+    if user_input.lower() == "exit":
+        print("Goodbye!")
+        break
+
+    input_msg = HumanMessage(content=user_input)
+    result = app.invoke({"messages": [input_msg]}, config={"configurable": {"thread_id": thread_id}})
+    ai_msg = result["messages"][-1]
+    print("AI:", ai_msg.content)
+-----------------------------------------------------------------------------------------------------------
