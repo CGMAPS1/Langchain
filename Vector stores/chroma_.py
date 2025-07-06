@@ -55,3 +55,36 @@ results = vector_store.similarity_search(
 )
 for res in results:
     print(f"* {res.page_content} [{res.metadata}]")
+ 
+#similarity search with scores
+ans_with_scores=vector_store.similarity_search_with_score(
+    query="Who among these are a bowler?",
+    k=2
+)
+
+# Iterating with unpacking
+for i, (doc, score) in enumerate(ans_with_scores):
+    print(f"\nResult {i+1}")
+    print(f"Team: {doc.metadata.get('team')}")
+    print(f"Content: {doc.page_content}")
+    print(f"Score: {score:.4f}")
+
+
+# update documents
+updated_doc1 = Document(
+    page_content="Virat Kohli, the former captain of Royal Challengers Bangalore (RCB), is renowned for his aggressive leadership and consistent batting performances. He holds the record for the most runs in IPL history, including multiple centuries in a single season. Despite RCB not winning an IPL title under his captaincy, Kohli's passion and fitness set a benchmark for the league. His ability to chase targets and anchor innings has made him one of the most dependable players in T20 cricket.",
+    metadata={"team": "Royal Challengers Bangalore"}
+)
+
+vector_store.update_document(
+    document_id='document_id initial one',
+    document=updated_doc1
+)
+
+# view documents
+print(vector_store.get(include=['embeddings','metadatas','documents']))   # bcz data stored is in the sql form hence writing the name of (by default) tables
+
+
+#delete socuments
+vector_store.delete(ids=['id name','id1 name'])
+
