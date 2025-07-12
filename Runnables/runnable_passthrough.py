@@ -11,12 +11,12 @@ model=ChatOpenAI()
 parser=StrOutputParser()
 
 prompt1=PromptTemplate(
-    template='Write a joke on the topic \n {topic}',
+    template='Write a joke on the topic \n {topic} in hindi',
     input_variables=['topic']
 )
 
 prompt2=PromptTemplate(
-    template='Write a summary of the joke explaining the meaning \n {joke}',
+    template='Write a summary of the joke explaining the meaning \n {joke} in hindi ',
     input_variables=['joke']
 )
 
